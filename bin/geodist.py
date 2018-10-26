@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import logging
 import sys
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 from geopy.distance import geodesic
@@ -19,7 +19,7 @@ class GeodistCommand(StreamingCommand):
                 dst_point = (record[self.dst_lat_field], record[self.dst_lon_field])
                 record[self.dist_field] = geodesic(src_point, dst_point).km
             except KeyError as err:
-                pass
+                logging.debug(err)
             finally:
                 yield record
 
