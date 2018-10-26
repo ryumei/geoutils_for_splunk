@@ -10,14 +10,18 @@ class GeodistCommand(StreamingCommand):
     src_lon_field = Option(require=False, default='start_station_longitude')
     dst_lat_field = Option(require=False, default='end_station_latitude')
     dst_lon_field = Option(require=False, default='end_station_longitude')
-    dist_field = Option(require=False, default='geodist')
+    dist_field = Option(require=False, default='geodist_km')
 
     def stream(self, records):
         for record in records:
-            src_point = (record[self.src_lat_field], record[self.src_lon_field])
-            dst_point = (record[self.dst_lat_field], record[self.dst_lon_field])
-            record[self.dist_field] = geodesic(src_point, dst_point).km
-            yield record
+            try:
+                src_point = (record[self.src_lat_field], record[self.src_lon_field])
+                dst_point = (record[self.dst_lat_field], record[self.dst_lon_field])
+                record[self.dist_field] = geodesic(src_point, dst_point).km
+            except KeyError as err:
+                pass
+            finally:
+                yield record
 
 if __name__ == "__main__":
     dispatch(GeodistCommand, sys.argv, sys.stdin, sys.stdout, __name__)
